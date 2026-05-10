@@ -10,13 +10,13 @@ export interface Tenant {
 }
 
 export interface WhiteLabelConfig {
-  id: ID;
-  tenantId: ID;
+  id?: ID;
+  tenantId?: ID;
   logoUrl?: string;
   faviconUrl?: string;
   primaryColor: string;
   secondaryColor: string;
-  companyName: string;
+  companyName?: string;
 }
 
 export interface User {

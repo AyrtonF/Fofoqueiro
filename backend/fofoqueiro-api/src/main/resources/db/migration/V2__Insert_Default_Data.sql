@@ -18,5 +18,5 @@ ON CONFLICT (id) DO NOTHING;
 -- Insert Default Admin User
 -- Password is 'admin123' hashed with BCrypt
 INSERT INTO users (id, tenant_id, email, password, first_name, last_name, is_active, mfa_enabled, created_at, updated_at)
-VALUES (1, 1, 'admin@fofoqueiro.com', '$2a$10$78/8yX.G2/U.M4iPzVv9Ou4nO8kL9u5J5oWf3j1o8p7q6r5s4t3u2', 'Admin', 'Admin', TRUE, FALSE, NOW(), NOW())
+VALUES (1, 1, 'ayrtonleonardo14@gmail.com', '$2a$10$78/8yX.G2/U.M4iPzVv9Ou4nO8kL9u5J5oWf3j1o8p7q6r5s4t3u2', 'Admin', 'Admin', TRUE, FALSE, NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;

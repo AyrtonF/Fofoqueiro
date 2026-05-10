@@ -4,14 +4,17 @@ import { useState, useEffect } from 'react';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Camera, Recording, PrivacyMask } from '@/domain/types';
 import { cameraService } from '@/services/camera-service';
-import { PlaybackTimeline } from './PlaybackTimeline';
+import { PlaybackTimeline } from '../PlaybackTimeline';
 import { Button } from '@/components/ui/button';
 import { Maximize2, Minimize2, Clock, AlertCircle, Video, Trash2 } from 'lucide-react';
-import MainLayout from '@/app/MainLayout';
-import { HlsPlayer } from '../playback/HlsPlayer';
+import { HlsPlayer } from '../HlsPlayer';
 import { PrivacyMaskEditor } from '@/components/modules/lgpd/PrivacyMaskEditor';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner'; // Assuming toast is available
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 // Assume RecordingInfo interface is defined elsewhere or here for clarity
 interface RecordingInfo {
@@ -47,7 +50,7 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
     isLoading: isRecordingsLoading,
     error: recordingsError,
     refetch: refetchRecordings,
-  } = useQuery<RecordingInfo[]>({
+  } = useQuery<Recording[]>({
     queryKey: ['camera-recordings', cameraId, dayjs.utc().format('YYYY-MM-DD')], // Include date in key
     queryFn: () => cameraService.getRecordings(cameraId, dayjs.utc().format('YYYY-MM-DD')), // Use service call
     enabled: !!cameraId,
@@ -73,7 +76,13 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
 
   useEffect(() => {
     if (recordings && recordings.length > 0) {
-      setSelectedRecording(recordings[0]);
+      const firstRecording = recordings[0];
+      setSelectedRecording({
+        id: firstRecording.id,
+        url: firstRecording.s3Path,
+        startTime: firstRecording.startTime,
+        endTime: firstRecording.endTime,
+      });
     } else {
       setSelectedRecording(null);
     }
@@ -107,41 +116,34 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
 
   if (isCameraLoading || isRecordingsLoading || isMasksLoading) {
     return (
-      <MainLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </MainLayout>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   if (cameraError || recordingsError || masksError) {
     return (
-      <MainLayout>
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-          <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-          <p className="text-lg text-destructive mb-4">
-            {cameraError?.message || recordingsError?.message || masksError?.message || 'Erro ao carregar dados de playback.'}
-          </p>
-          <Button onClick={() => { refetchRecordings(); refetchMasks(); }}>Tentar novamente</Button>
-        </div>
-      </MainLayout>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <AlertCircle className="h-12 w-12 text-destructive mb-4" />
+        <p className="text-lg text-destructive mb-4">
+          {cameraError?.message || recordingsError?.message || masksError?.message || 'Erro ao carregar dados de playback.'}
+        </p>
+        <Button onClick={() => { refetchRecordings(); refetchMasks(); }}>Tentar novamente</Button>
+      </div>
     );
   }
 
   if (!camera) {
     return (
-      <MainLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p>Câmera não encontrada.</p>
-        </div>
-      </MainLayout>
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Câmera não encontrada.</p>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
-      <div className={`flex flex-col h-full ${isFullScreen ? 'fixed inset-0 z-50 bg-black' : ''}`}>
+    <div className={`flex flex-col h-full ${isFullScreen ? 'fixed inset-0 z-50 bg-black' : ''}`}>
         <div className={`flex justify-between items-center p-4 ${isFullScreen ? 'bg-black/70 text-white' : ''}`}>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Clock className="h-6 w-6" />
@@ -163,9 +165,8 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
                   <DialogDescription>Desenhe ou edite as áreas a serem mascaradas.</DialogDescription>
                 </DialogHeader>
                 <PrivacyMaskEditor
-                  imageUrl="/path/to/static/frame.jpg" // Placeholder: Needs actual frame source
-                  initialMasks={currentMasks}
-                  onMasksChange={(newMasks) => setCurrentMasks(newMasks)}
+                  initialMasks={currentMasks as any}
+                  onMasksChange={(newMasks) => setCurrentMasks(newMasks as any)}
                   isEditing={true}
                 />
                 <DialogFooter>
@@ -178,7 +179,7 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
         </div>
         <div className={`flex-1 relative ${isFullScreen ? 'p-4' : 'p-0'}`}>
           {selectedRecording ? (
-            <HlsPlayer src={selectedRecording.url} cameraName={camera.name} />
+            <HlsPlayer src={selectedRecording.url} />
           ) : (
             <div className="flex items-center justify-center h-full w-full bg-black rounded-lg text-white">
               {isRecordingsLoading ? 'Carregando gravações...' : 'Selecione uma gravação para visualizar'}
@@ -186,14 +187,8 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
           )}
         </div>
         <div className={`h-40 ${isFullScreen ? 'bg-black/70' : ''}`}>
-          <PlaybackTimeline
-            camera={camera}
-            recordings={recordings || []}
-            onRecordingSelect={handleRecordingSelect}
-            // Add props for current time, scrubbing etc. if needed for timeline interaction
-          />
+          <PlaybackTimeline recordings={recordings || []} />
         </div>
       </div>
-    </MainLayout>
-  );
-}
+    );
+  }

@@ -1,5 +1,10 @@
 import { Gauge, Camera, Settings, LogOut, LayoutGrid, Monitor, ShieldAlert } from 'lucide-react'; // Added Monitor icon
-import { NavigationItem } from './navigation';
+
+export type NavigationItem = {
+  href: string;
+  label: string;
+  icon: any;
+};
 
 export const navigationItems: NavigationItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: Gauge },

@@ -1,6 +1,7 @@
 package com.security.fofoqueiro.infrastructure.config;
 
 import com.security.fofoqueiro.infrastructure.security.TenantFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,16 +16,26 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final TenantFilter tenantFilter;
+    private final List<String> allowedOriginPatterns;
 
-    public SecurityConfig(TenantFilter tenantFilter) {
+    public SecurityConfig(
+            TenantFilter tenantFilter,
+            @Value("${app.cors.allowed-origins:http://localhost:3000,http://127.0.0.1:3000}") String allowedOrigins
+    ) {
         this.tenantFilter = tenantFilter;
+        this.allowedOriginPatterns = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @Bean
@@ -47,10 +58,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOriginPatterns(allowedOriginPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Tenant-Id"));
-        configuration.setExposedHeaders(List.of("X-Tenant-Id")); // Expose the header to the browser
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Tenant-Id", "Origin", "Accept", "X-Requested-With"));
+        configuration.setExposedHeaders(List.of("X-Tenant-Id"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

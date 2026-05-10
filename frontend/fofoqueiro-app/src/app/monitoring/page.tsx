@@ -5,6 +5,7 @@ import { cameraService } from '@/services/camera-service';
 import { CameraGrid } from '@/components/modules/monitoring/CameraGrid';
 import { Camera } from '@/domain/types';
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
 export default function MonitoringPage() {
   const {

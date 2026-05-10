@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Eraser, Square, Circle, Polygon, Trash2 } from 'lucide-react';
+import { Eraser, Square, Circle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner'; // Assuming toast is available
 
 // Define the shape of a mask point
@@ -135,7 +135,7 @@ export function PrivacyMaskEditor({
         ctx.beginPath();
         ctx.moveTo(currentMask.points[0].x, currentMask.points[0].y);
         for (let i = 1; i < currentMask.points.length; i++) {
-          ctx.lineTo(currentMask.points[i].x, mask.points[i].y);
+          ctx.lineTo(currentMask.points[i].x, currentMask.points[i].y);
         }
         if (currentMask.points.length >= 3) {
           ctx.closePath();
@@ -265,7 +265,7 @@ export function PrivacyMaskEditor({
           {/* Tool controls */}
           <div className="absolute top-2 left-2 flex gap-2 bg-black/50 p-2 rounded-md z-10">
             <Button
-              variant={currentTool === 'rectangle' ? 'default' : 'outline'}
+              variant={currentTool === 'rectangle' ? 'primary' : 'outline'}
               size="icon"
               onClick={() => handleToolChange('rectangle')}
               title="Retângulo"
@@ -274,7 +274,7 @@ export function PrivacyMaskEditor({
               <Square className="h-5 w-5" />
             </Button>
             <Button
-              variant={currentTool === 'circle' ? 'default' : 'outline'}
+              variant={currentTool === 'circle' ? 'primary' : 'outline'}
               size="icon"
               onClick={() => handleToolChange('circle')}
               title="Círculo"
@@ -283,16 +283,16 @@ export function PrivacyMaskEditor({
               <Circle className="h-5 w-5" />
             </Button>
             <Button
-              variant={currentTool === 'polygon' ? 'default' : 'outline'}
+              variant={currentTool === 'polygon' ? 'primary' : 'outline'}
               size="icon"
               onClick={() => handleToolChange('polygon')}
               title="Polígono"
               disabled={!isEditing}
             >
-              <Polygon className="h-5 w-5" />
+              <Eraser className="h-5 w-5" />
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               size="icon"
               onClick={clearAllMasks}
               title="Limpar todas as máscaras"
@@ -313,7 +313,7 @@ export function PrivacyMaskEditor({
                   <span className="text-sm">
                     {mask.type.charAt(0).toUpperCase() + mask.type.slice(1)} #{index + 1} ({mask.points.length} pts)
                   </span>
-                  <Button variant="destructive" size="sm" onClick={() => removeMask(mask.id)}>
+                  <Button variant="outline" size="sm" onClick={() => removeMask(mask.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

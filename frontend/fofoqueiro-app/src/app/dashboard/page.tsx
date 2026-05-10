@@ -1,10 +1,9 @@
 'use client';
 
-import MainLayout from '@/app/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Camera, Monitor, Clock, ShieldAlert } from 'lucide-react'; // Icons for modules
+import { Camera, Monitor, Clock, ShieldAlert } from 'lucide-react';
 
 export default function DashboardPage() {
   const dashboardSections = [
@@ -13,7 +12,7 @@ export default function DashboardPage() {
       description: 'Visualize o status em tempo real de todas as suas câmeras.',
       link: '/monitoring',
       icon: Camera,
-      bgClass: 'from-blue-500 to-blue-700', // Example gradient
+      bgClass: 'from-blue-500 to-blue-700',
     },
     {
       title: 'Gerenciamento de Câmeras',
@@ -25,7 +24,7 @@ export default function DashboardPage() {
     {
       title: 'Reprodução de Gravações',
       description: 'Acesse e revise gravações passadas de qualquer câmera.',
-      link: '/playback/some-camera-id', // Link to a placeholder camera ID, ideally dynamic
+      link: '/playback/some-camera-id',
       icon: Clock,
       bgClass: 'from-yellow-500 to-yellow-700',
     },
@@ -39,15 +38,14 @@ export default function DashboardPage() {
   ];
 
   return (
-    <MainLayout>
-      <div className="w-full p-6">
-        <h1 className="text-4xl font-bold mb-8">Bem-vindo ao Fofoqueiro</h1>
-        <p className="text-lg text-muted-foreground mb-6">
-          Seu painel central para monitoramento, gerenciamento e segurança.
-        </p>
+    <div className="w-full p-6">
+      <h1 className="text-4xl font-bold mb-8">Bem-vindo ao Fofoqueiro</h1>
+      <p className="text-lg text-muted-foreground mb-6">
+        Seu painel central para monitoramento, gerenciamento e segurança.
+      </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dashboardSections.map((section) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {dashboardSections.map((section) => (
             <Card key={section.link} className={`relative overflow-hidden`}>
               <div className={`absolute inset-0 opacity-30 ${section.bgClass}`}></div>
               <CardHeader className="relative z-10">
@@ -69,6 +67,5 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-    </MainLayout>
-  );
+    );
 }

@@ -6,11 +6,11 @@ import { Camera } from '@/domain/types';
 import { cameraService } from '@/services/camera-service';
 import { InteractiveMap } from '@/components/common/InteractiveMap';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CameraGrid } from '../monitoring/CameraGrid';
-import { ExpandCameraDialog } from './ExpandCameraDialog'; // Assuming this exists for single camera view
+import { ExpandCameraDialog } from '../cameras/ExpandCameraDialog'; // Reuse shared stub from cameras folder
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { CameraOff, CameraOn, AlertTriangle, MoreHorizontal, Video, Trash2, Map } from 'lucide-react'; // Added Map icon
-import MainLayout from '@/app/MainLayout';
+import { CameraOff, Camera as CameraIcon, AlertTriangle, MoreHorizontal, Video, Trash2, Map, Maximize2, Minimize2 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -51,10 +51,21 @@ export default function DeviceManagementPage() {
   };
 
   const selectedCamera = cameras?.find(cam => cam.id === selectedCameraId);
+  const mapCameras: Array<{
+    id: string;
+    name: string;
+    latitude: number;
+    longitude: number;
+    status: 'ONLINE' | 'OFFLINE';
+  }> = (cameras ?? []).map((camera) => ({
+    ...camera,
+    latitude: camera.latitude ?? -23.5505,
+    longitude: camera.longitude ?? -46.6333,
+    status: camera.status === 'ONLINE' ? 'ONLINE' : 'OFFLINE',
+  }));
 
   return (
-    <MainLayout>
-      <div className="w-full p-6">
+    <div className="w-full p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Gerenciamento de Dispositivos</h1>
           <Button onClick={toggleFullScreenMap} variant="outline">
@@ -69,8 +80,8 @@ export default function DeviceManagementPage() {
             {isLoading && <p>Carregando câmeras...</p>}
             {error && <p className="text-destructive">Erro ao carregar câmeras: {error.message}</p>}
 
-            {cameras && cameras.length > 0 ? (
-              <InteractiveMap cameras={cameras} />
+            {mapCameras.length > 0 ? (
+              <InteractiveMap cameras={mapCameras} />
             ) : (
               !isLoading && !error && <p>Nenhuma câmera encontrada com dados de localização.</p>
             )}
@@ -96,7 +107,7 @@ export default function DeviceManagementPage() {
                     </CardHeader>
                     <CardContent>
                       <div className={`flex items-center gap-2 p-2 rounded-md ${camera.status === 'ONLINE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {camera.status === 'ONLINE' ? <CameraOn /> : <CameraOff />}
+                        {camera.status === 'ONLINE' ? <CameraIcon /> : <CameraOff />}
                         {camera.status}
                       </div>
                     </CardContent>
@@ -121,7 +132,7 @@ export default function DeviceManagementPage() {
 
         {/* Single Camera View Dialog */}
         {selectedCamera && (
-          <Dialog open={!!selectedCameraId} onOpenChange={(isOpen) => !isOpen && setSelectedCameraId(null)}>
+          <Dialog open={!!selectedCameraId} onOpenChange={(isOpen: boolean) => !isOpen && setSelectedCameraId(null)}>
             <DialogContent className="sm:max-w-5xl max-h-[80vh] overflow-auto">
               <DialogHeader>
                 <DialogTitle>Visualizando: {selectedCamera?.name}</DialogTitle>
@@ -137,6 +148,5 @@ export default function DeviceManagementPage() {
           </Dialog>
         )}
       </div>
-    </MainLayout>
-  );
-}
+    );
+  }

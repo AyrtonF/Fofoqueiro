@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Camera } from '@/domain/types';
 import { useCameraMutation } from '@/hooks/use-camera-mutations';
 import { toast } from 'sonner';
@@ -17,7 +18,7 @@ interface EditCameraDialogProps {
 export function EditCameraDialog({ camera, isOpen, onClose }: EditCameraDialogProps) {
   const queryClient = useQueryClient();
   const { mutate: updateCameraMutation, isPending: isUpdating } = useCameraMutation().createCameraMutation; // Reusing create mutation logic for update for now
-  const { mutate: testConnectionMutation } = useCameraMutation().testConnectionMutation;
+  const { mutateAsync: testConnectionAsync } = useCameraMutation().testConnectionMutation;
 
   const [isTestingConnection, setIsTestingConnection] = useState(false);
 
@@ -28,6 +29,13 @@ export function EditCameraDialog({ camera, isOpen, onClose }: EditCameraDialogPr
     latitude: camera.latitude ?? undefined,
     longitude: camera.longitude ?? undefined,
   };
+  type CameraFormValues = {
+    name: string;
+    url: string;
+    gatewayId: string;
+    latitude?: number;
+    longitude?: number;
+  };
 
   const {
     handleSubmit,
@@ -35,17 +43,16 @@ export function EditCameraDialog({ camera, isOpen, onClose }: EditCameraDialogPr
     formState: { errors },
     reset,
     setValue, // To potentially pre-fill form
-  } = useForm<Camera>({
-    defaultValues: formValues,
-    values: formValues, // Ensure form is pre-filled
+  } = useForm<CameraFormValues>({
+    defaultValues: formValues as CameraFormValues,
   });
 
-  const onSubmit = async (values: Camera) => {
+  const onSubmit = async (values: CameraFormValues) => {
     setIsTestingConnection(true);
     try {
-      const testResult = await testConnectionMutation(values.url);
-      if (!testResult.success) {
-        toast.error(`Falha ao conectar: ${testResult.message}`);
+      const testResult = await testConnectionAsync(values.url);
+      if (!testResult?.success) {
+        toast.error(`Falha ao conectar: ${testResult?.message || 'Erro'}`);
         setIsTestingConnection(false);
         return;
       }
@@ -54,7 +61,8 @@ export function EditCameraDialog({ camera, isOpen, onClose }: EditCameraDialogPr
 
       // In a real scenario, this would be an update API call
       // For now, we'll simulate it by creating a new camera and invalidating the list
-      updateCameraMutation(values, {
+      const payload = { ...camera, ...values } as Camera;
+      updateCameraMutation(payload, {
         onSuccess: () => {
           toast.success('Câmera atualizada com sucesso!');
           queryClient.invalidateQueries({ queryKey: ['cameras'] });
@@ -72,7 +80,7 @@ export function EditCameraDialog({ camera, isOpen, onClose }: EditCameraDialogPr
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Editar Câmera</DialogTitle>

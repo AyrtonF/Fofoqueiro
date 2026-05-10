@@ -21,7 +21,7 @@ export function VideoPlayer({ camera, isMainStream = false, onExpand, isExpanded
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    let peerConnection: RTCPeerConnection | null = null;
+    let peerConnection: any = null;
 
     const startStream = async () => {
       setIsLoading(true);
@@ -51,7 +51,7 @@ export function VideoPlayer({ camera, isMainStream = false, onExpand, isExpanded
     startStream();
 
     return () => {
-      if (peerConnection) {
+      if (peerConnection && typeof peerConnection.close === 'function') {
         peerConnection.close();
       }
     };

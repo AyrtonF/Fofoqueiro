@@ -13,7 +13,6 @@ import { CameraGrid } from '../monitoring/CameraGrid';
 import { ExpandCameraDialog } from './ExpandCameraDialog';
 import { EditCameraDialog } from './EditCameraDialog';
 import { toast } from 'sonner';
-import MainLayout from '@/app/MainLayout';
 
 export default function CameraManagementPage() {
   const queryClient = useQueryClient();
@@ -54,18 +53,10 @@ export default function CameraManagementPage() {
     }
   };
 
-  // cameraColumns expects the props and now uses the real DataTable.
-  // Note: cameraColumns.tsx might have async cell issues if using mock getters.
-  // Ensure those mock helpers (getUserName, getResourceName) are replaced by service calls.
-  const columns = cameraColumns(queryClient, {
-    onExpandCamera: (camera) => setExpandedCamera(camera),
-    onEditCamera: (camera) => setEditingCamera(camera),
-    onDeleteCamera: handleDeleteCamera,
-  });
+  const columns = cameraColumns;
 
   return (
-    <MainLayout>
-      <div className="w-full p-6">
+    <div className="w-full p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Gerenciamento de Câmeras</h1>
           <Dialog open={isAddCameraDialogOpen} onOpenChange={setIsAddCameraDialogOpen}>
@@ -93,12 +84,11 @@ export default function CameraManagementPage() {
         {editingCamera && (
           <EditCameraDialog
             camera={editingCamera}
-            isOpen={!!editingCamera}
             onClose={() => setEditingCamera(null)}
           />
         )}
 
-        <Dialog open={!!deletingCamera} onOpenChange={(open) => !open && setDeletingCamera(null)}>
+        <Dialog open={!!deletingCamera} onOpenChange={(open: boolean) => !open && setDeletingCamera(null)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirmar Exclusão</DialogTitle>
@@ -108,13 +98,12 @@ export default function CameraManagementPage() {
             </DialogHeader>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDeletingCamera(null)}>Cancelar</Button>
-              <Button variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
+              <Button variant="secondary" onClick={confirmDelete} disabled={isDeleting}>
                 {isDeleting ? 'Excluindo...' : 'Excluir'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-    </MainLayout>
-  );
-}
+    );
+  }

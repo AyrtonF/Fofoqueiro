@@ -1,7 +1,7 @@
-import { Camera } from '@/domain/types';
+import { Camera, PrivacyMask } from '@/domain/types';
 import { cameraService } from '@/services/camera-service';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { RecordingInfo } from './page'; // Import RecordingInfo type if defined in page.tsx
+import { toast } from 'sonner';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
@@ -9,6 +9,13 @@ dayjs.extend(utc);
 
 // Assume PrivacyMaskShape is defined in domain/types.ts
 // interface PrivacyMaskShape { id: string; type: 'rectangle' | 'circle' | 'polygon'; points: { x: number; y: number }[]; }
+
+interface RecordingInfo {
+  id: string;
+  url: string;
+  startTime: string;
+  endTime: string;
+}
 
 export function usePlaybackFeatures() {
   const queryClient = useQueryClient();
@@ -27,7 +34,7 @@ export function usePlaybackFeatures() {
 
   // Mutation to update privacy masks for a camera
   const updatePrivacyMasks = useMutation({
-    mutationFn: ({ cameraId, masks }: { cameraId: string; masks: PrivacyMaskShape[] }) =>
+    mutationFn: ({ cameraId, masks }: { cameraId: string; masks: PrivacyMask[] }) =>
       cameraService.updatePrivacyMasks(cameraId, masks), // Assuming cameraService.updatePrivacyMasks exists
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['camera-privacy-masks', variables.cameraId] });

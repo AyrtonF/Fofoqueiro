@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { Camera } from '@/domain/types';
 import { CameraGrid } from '../monitoring/CameraGrid';
@@ -13,7 +13,7 @@ export function ExpandCameraDialog({ camera, onClose }: ExpandCameraDialogProps)
   const isOpen = !!camera;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
       <DialogContent className="sm:max-w-5xl max-h-[80vh] overflow-auto">
         <DialogHeader>
           <DialogTitle>Visualizando: {camera?.name}</DialogTitle>

@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuthStore } from '@/store/auth-store';
 import { useTenantStore } from '@/store/tenant-store';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth-service';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "E-mail inválido" }),
@@ -26,6 +27,8 @@ type MfaFormValues = z.infer<typeof mfaSchema>;
 export function LoginForm() {
   const [step, setStep] = useState<'login' | 'mfa'>('login');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { setAuth } = useAuthStore();
   const { config } = useTenantStore();
   const router = useRouter();
 
@@ -41,12 +44,15 @@ export function LoginForm() {
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
+    setError(null);
     try {
-      // Simulate API call
-      console.log('Login data:', data);
+      await authService.login(data);
+      // Login was successful, now wait for MFA
       setStep('mfa');
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error('Login error:', err);
+      const errorMessage = err?.response?.data?.message || 'Erro ao fazer login. Tente novamente.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -54,12 +60,17 @@ export function LoginForm() {
 
   const onMfaSubmit = async (data: MfaFormValues) => {
     setIsLoading(true);
+    setError(null);
     try {
-      // Simulate API call
-      console.log('MFA data:', data);
+      const response = await authService.verifyMfa(data);
+      // Save user and token
+      setAuth(response.user, response.token);
+      // Redirect to dashboard
       router.push('/dashboard');
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error('MFA error:', err);
+      const errorMessage = err?.response?.data?.message || 'Código inválido. Tente novamente.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +92,11 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && (
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive text-destructive rounded-md text-sm">
+            {error}
+          </div>
+        )}
         {step === 'login' ? (
           <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
             <div className="space-y-2">

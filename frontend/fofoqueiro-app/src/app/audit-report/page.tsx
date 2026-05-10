@@ -1,32 +1,21 @@
+"use client";
+
 import { useState } from 'react';
-import { AuditLog } from '@/domain/types';
 import { useAuditLogFeatures } from '@/hooks/use-audit-features';
-import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, Filter, X, FileText } from 'lucide-react';
+import { Calendar as CalendarIcon, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { DataTable } from '@/components/ui/data-table';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import MainLayout from '@/app/MainLayout';
-import { toast } from 'sonner'; // Assuming toast is available
+import { auditLogColumns } from './auditLogColumns';
 
 dayjs.extend(utc);
-
-// Mock helper functions (replace with actual service calls if needed)
-const getUserName = async (userId: string) => {
-  // In a real app, fetch user data from API
-  return `User ${userId.slice(-4)}`; // Mocking user display name
-};
-
-const getResourceName = async (resourceType: string, resourceId: string) => {
-  if (resourceType === 'CAMERA') return `Camera ${resourceId.slice(-4)}`;
-  if (resourceType === 'USER') return getUserName(resourceId);
-  return resourceId; // Default to resourceId
-};
 
 type AuditLogFilters = {
   date: dayjs.Dayjs;
@@ -36,12 +25,7 @@ type AuditLogFilters = {
   ipAddress: string;
 };
 
-interface AuditLogPageProps {
-  // Potentially pass initial filters or other props here
-}
-
 export default function AuditReportPage() {
-  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<AuditLogFilters>({
     date: dayjs.utc().startOf('day'), // Default to start of current day
     action: '',
@@ -50,7 +34,8 @@ export default function AuditReportPage() {
     ipAddress: '',
   });
 
-  const { auditLogs, isLoading, error, refetch, exportLogsMutation } = useAuditLogFeatures(filters);
+  const { fetchAuditLogs, exportLogsMutation } = useAuditLogFeatures();
+  const { data: auditLogs, isLoading, error, refetch } = fetchAuditLogs(filters);
 
   const handleFilterChange = (key: keyof AuditLogFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -70,15 +55,10 @@ export default function AuditReportPage() {
     exportLogsMutation.mutate(filters); // Pass current filters to the mutation
   };
 
-  const columns = auditLogColumns({
-    filters,
-    onFiltersChange: handleFilterChange,
-    clearFilters: clearFilters,
-  });
+  const columns = auditLogColumns;
 
   return (
-    <MainLayout>
-      <div className="w-full p-6">
+    <div className="w-full p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Relatório de Auditoria</h1>
           <div className="flex gap-2">
@@ -115,7 +95,7 @@ export default function AuditReportPage() {
                   <Calendar
                     mode="single"
                     selected={filters.date.toDate()}
-                    onSelect={(date) => date && handleFilterChange('date', dayjs.utc(date).startOf('day'))}
+                    onSelect={(date: Date | undefined) => date && handleFilterChange('date', dayjs.utc(date).startOf('day'))}
                     initialFocus
                     locale={ptBR}
                   />
@@ -173,6 +153,5 @@ export default function AuditReportPage() {
           <DataTable columns={columns} data={auditLogs} />
         )}
       </div>
-    </MainLayout>
-  );
-}
+    );
+  }

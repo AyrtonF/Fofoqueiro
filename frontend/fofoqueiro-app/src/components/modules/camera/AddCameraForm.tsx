@@ -19,7 +19,7 @@ const cameraSchema = z.object({
 export function AddCameraForm({ onSuccess }: { onSuccess: () => void }) {
   const { createCameraMutation, testConnectionMutation } = useCameraMutation();
   const form = useForm<z.infer<typeof cameraSchema>>({
-    resolver: zodResolver(cameraSchema),
+    resolver: zodResolver(cameraSchema) as any,
     defaultValues: { name: '', url: '', gatewayId: '', latitude: 0, longitude: 0 },
   });
 

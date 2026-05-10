@@ -1,14 +1,29 @@
-import { NavigationItem, navigationItems } from '@/app/navigation'; // Assuming navigationItems is exported from navigation.ts
+"use client";
+
+import { NavigationItem, navigationItems } from '@/app/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
-import { usePathname } from 'next/navigation'; // Hook to get current path
+import { usePathname, useRouter } from 'next/navigation';
+import { authService } from '@/services/auth-service';
 
 export function Sidebar() {
   const { logout } = useAuthStore();
-  const pathname = usePathname(); // Get current path
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      logout();
+      router.push('/login');
+    }
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-full w-64 bg-card border-r px-4 py-6 flex flex-col">
@@ -32,7 +47,7 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="mt-auto">
-        <Button variant="outline" className="w-full" onClick={() => logout()}>
+        <Button variant="outline" className="w-full" onClick={handleLogout}>
           <LogOut className="h-4 w-4 mr-2" />
           Sair
         </Button>
