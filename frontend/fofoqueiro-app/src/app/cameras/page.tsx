@@ -63,7 +63,7 @@ export default function CameraManagementPage() {
             <DialogTrigger asChild>
               <Button>Adicionar Nova Câmera</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-106.25">
               <DialogHeader>
                 <DialogTitle>Adicionar Câmera</DialogTitle>
                 <DialogDescription>Preencha os detalhes para adicionar uma nova câmera.</DialogDescription>

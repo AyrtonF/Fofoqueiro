@@ -159,7 +159,7 @@ export default function PlaybackPage({ params }: { params: { cameraId: string } 
                   <Trash2 className="h-5 w-5 mr-2" /> Editar Máscaras
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-auto">
+              <DialogContent className="sm:max-w-150 max-h-[80vh] overflow-auto">
                 <DialogHeader>
                   <DialogTitle>Editar Máscaras de Privacidade</DialogTitle>
                   <DialogDescription>Desenhe ou edite as áreas a serem mascaradas.</DialogDescription>

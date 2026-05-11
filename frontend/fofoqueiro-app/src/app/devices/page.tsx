@@ -76,7 +76,7 @@ export default function DeviceManagementPage() {
 
         <div className={`flex flex-col ${isFullScreenMap ? 'fixed inset-0 z-50 bg-background' : ''}`}>
           {/* Map Section */}
-          <div className={`relative ${isFullScreenMap ? 'h-screen w-screen' : 'h-[500px] w-full mb-6'}`}>
+          <div className={`relative ${isFullScreenMap ? 'h-screen w-screen' : 'h-125 w-full mb-6'}`}>
             {isLoading && <p>Carregando câmeras...</p>}
             {error && <p className="text-destructive">Erro ao carregar câmeras: {error.message}</p>}
 

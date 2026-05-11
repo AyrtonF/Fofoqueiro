@@ -22,6 +22,9 @@ public class CameraEntity {
     @Column(nullable = false)
     private Long tenantId; // Link to Tenant
 
+    @Column
+    private Long gatewayId; // Link to Gateway
+
     @Column(nullable = false)
     private String name;
 

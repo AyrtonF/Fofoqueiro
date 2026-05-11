@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MfaVerifyRequestDTO {
+    @NotBlank(message = "MFA token is required")
+    private String mfaToken;
+
     @NotBlank(message = "Code is required")
     @Pattern(regexp = "^\\d{6}$", message = "Code must be exactly 6 digits")
     private String code;

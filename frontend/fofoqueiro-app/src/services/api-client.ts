@@ -43,7 +43,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl = String(error.config?.url || '');
+    const isAuthEndpoint = requestUrl.includes('/auth/');
+
+    if (!isAuthEndpoint && (error.response?.status === 401 || error.response?.status === 403)) {
       // Token is invalid or expired
       const { logout } = useAuthStore.getState();
       logout();

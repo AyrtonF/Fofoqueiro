@@ -88,6 +88,18 @@ export interface AuditLog {
   details: any; // JSONB in backend
 }
 
+export interface AlertEvent {
+  id: ID;
+  tenantId: ID;
+  cameraId: ID;
+  eventType: string;
+  eventTime: string;
+  snapshotUrl?: string;
+  description?: string;
+  acknowledged: boolean;
+  createdAt: string;
+}
+
 export interface PrivacyMask {
   id: ID;
   cameraId: ID;

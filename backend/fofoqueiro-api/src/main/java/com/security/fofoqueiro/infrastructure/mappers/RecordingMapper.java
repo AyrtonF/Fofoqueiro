@@ -1,5 +1,6 @@
 package com.security.fofoqueiro.infrastructure.mappers;
 
+import com.security.fofoqueiro.domain.dtos.RecordingResponseDTO;
 import com.security.fofoqueiro.domain.models.Recording;
 import com.security.fofoqueiro.infrastructure.entities.RecordingEntity;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,21 @@ public class RecordingMapper {
                 .fileSizeMb(domain.getFileSizeMb())
                 .eventType(domain.getEventType())
                 .createdAt(domain.getCreatedAt())
+                .build();
+    }
+
+    public RecordingResponseDTO toResponseDTO(Recording domain) {
+        if (domain == null) {
+            return null;
+        }
+        return RecordingResponseDTO.builder()
+                .id(domain.getId())
+                .cameraId(domain.getCameraId())
+                .startTime(domain.getStartTime())
+                .endTime(domain.getEndTime())
+                .s3Path(domain.getS3Path())
+                .size(domain.getFileSizeMb())
+                .eventType(domain.getEventType())
                 .build();
     }
 }

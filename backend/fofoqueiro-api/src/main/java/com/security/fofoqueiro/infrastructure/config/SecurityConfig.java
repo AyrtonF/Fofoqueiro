@@ -1,6 +1,7 @@
 package com.security.fofoqueiro.infrastructure.config;
 
 import com.security.fofoqueiro.infrastructure.security.TenantFilter;
+import com.security.fofoqueiro.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +26,16 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
 
     private final TenantFilter tenantFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final List<String> allowedOriginPatterns;
 
     public SecurityConfig(
             TenantFilter tenantFilter,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
             @Value("${app.cors.allowed-origins:http://localhost:3000,http://127.0.0.1:3000}") String allowedOrigins
     ) {
         this.tenantFilter = tenantFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.allowedOriginPatterns = Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
                 .filter(value -> !value.isEmpty())
@@ -51,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/tenants").permitAll()
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(tenantFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

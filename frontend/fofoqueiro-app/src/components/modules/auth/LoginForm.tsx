@@ -28,6 +28,7 @@ export function LoginForm() {
   const [step, setStep] = useState<'login' | 'mfa'>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
   const { setAuth } = useAuthStore();
   const { config } = useTenantStore();
   const router = useRouter();
@@ -46,9 +47,20 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
     try {
-      await authService.login(data);
-      // Login was successful, now wait for MFA
-      setStep('mfa');
+      const response = await authService.login(data);
+      if (response.mfaRequired && response.mfaToken) {
+        setMfaToken(response.mfaToken);
+        setStep('mfa');
+        return;
+      }
+
+      if (response.token && response.user) {
+        setAuth(response.user, response.token);
+        router.push('/dashboard');
+        return;
+      }
+
+      setError('Resposta de login inválida.');
     } catch (err: any) {
       console.error('Login error:', err);
       const errorMessage = err?.response?.data?.message || 'Erro ao fazer login. Tente novamente.';
@@ -62,10 +74,14 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authService.verifyMfa(data);
-      // Save user and token
+      if (!mfaToken) {
+        setError('Sessão MFA expirada. Faça login novamente.');
+        setStep('login');
+        return;
+      }
+
+      const response = await authService.verifyMfa({ ...data, mfaToken });
       setAuth(response.user, response.token);
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
       console.error('MFA error:', err);

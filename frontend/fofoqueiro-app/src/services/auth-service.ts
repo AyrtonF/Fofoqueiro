@@ -9,10 +9,13 @@ interface LoginRequest {
 interface LoginResponse {
   token: string;
   refreshToken?: string;
+  mfaRequired?: boolean;
+  mfaToken?: string;
   user: User;
 }
 
 interface MfaRequest {
+  mfaToken: string;
   code: string;
 }
 

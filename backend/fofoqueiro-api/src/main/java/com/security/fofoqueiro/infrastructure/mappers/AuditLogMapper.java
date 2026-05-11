@@ -71,7 +71,7 @@ public class AuditLogMapper {
                 .userId(domain.getUserId())
                 .action(domain.getAction())
                 .entityName(domain.getEntityName())
-                .entityId(domain.getEntityId())
+            .entityId(domain.getEntityId() == null ? null : String.valueOf(domain.getEntityId()))
                 .timestamp(domain.getTimestamp())
                 .ipAddress(domain.getIpAddress())
                 .details(domain.getDetails())

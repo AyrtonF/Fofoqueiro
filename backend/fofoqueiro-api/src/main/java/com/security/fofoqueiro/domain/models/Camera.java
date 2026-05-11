@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class Camera {
     private Long id;
     private Long tenantId; // Link to Tenant
+    private Long gatewayId; // Link to Gateway
     private String name;
     private String rtspUrl; // URL for the camera stream
     private String status; // e.g., ONLINE, OFFLINE, ERROR (Can be an Enum later)

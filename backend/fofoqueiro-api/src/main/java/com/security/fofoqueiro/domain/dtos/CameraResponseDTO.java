@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 public class CameraResponseDTO {
     private Long id;
     private Long tenantId;
+    private Long gatewayId;
     private String name;
+    private String url;
     private String rtspUrl;
     private String status;
     private Double latitude;
