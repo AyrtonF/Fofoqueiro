@@ -45,10 +45,14 @@ public class WhiteLabelConfigMapper {
             return null;
         }
         return WhiteLabelConfigResponseDTO.builder()
+                .id(domain.getId())
+                .tenantId(domain.getTenantId())
                 .logoUrl(domain.getLogoUrl())
                 .primaryColor(domain.getPrimaryColor())
                 .secondaryColor(domain.getSecondaryColor())
                 .faviconUrl(domain.getFaviconUrl())
+                .createdAt(domain.getCreatedAt())
+                .updatedAt(domain.getUpdatedAt())
                 .build();
     }
 }

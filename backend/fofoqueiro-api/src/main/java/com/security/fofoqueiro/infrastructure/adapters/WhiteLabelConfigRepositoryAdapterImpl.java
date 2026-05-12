@@ -8,7 +8,9 @@ import com.security.fofoqueiro.infrastructure.repositories.SpringDataWhiteLabelC
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -16,6 +18,14 @@ public class WhiteLabelConfigRepositoryAdapterImpl implements IWhiteLabelConfigR
 
     private final SpringDataWhiteLabelConfigRepository whiteLabelConfigRepository;
     private final WhiteLabelConfigMapper whiteLabelConfigMapper;
+
+    @Override
+    public List<WhiteLabelConfig> findAll() {
+        return whiteLabelConfigRepository.findAll()
+                .stream()
+                .map(whiteLabelConfigMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Optional<WhiteLabelConfig> findById(Long id) {

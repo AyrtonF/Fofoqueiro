@@ -8,7 +8,9 @@ import com.security.fofoqueiro.infrastructure.repositories.SpringDataRoleReposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +29,14 @@ public class RoleRepositoryAdapterImpl implements IRoleRepositoryPort {
     public Optional<Role> findByName(String name) {
         return roleRepository.findByName(name)
                 .map(roleMapper::toDomain);
+    }
+
+    @Override
+    public List<Role> findAll() {
+        return roleRepository.findAll()
+                .stream()
+                .map(roleMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

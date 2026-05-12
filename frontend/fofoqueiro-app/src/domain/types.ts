@@ -4,6 +4,7 @@ export interface Tenant {
   id: ID;
   name: string;
   domain: string;
+  isActive?: boolean;
   whiteLabelConfig?: WhiteLabelConfig;
   createdAt: string;
   updatedAt: string;
@@ -17,6 +18,8 @@ export interface WhiteLabelConfig {
   primaryColor: string;
   secondaryColor: string;
   companyName?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface User {
@@ -45,6 +48,7 @@ export interface Camera {
   gatewayId: ID;
   latitude?: number;
   longitude?: number;
+  recordingRetentionDays?: number;
   status: CameraStatus;
   resolution?: string;
   fps?: number;
@@ -104,4 +108,26 @@ export interface PrivacyMask {
   id: ID;
   cameraId: ID;
   points: { x: number; y: number }[]; // Coordinates for SVG/Canvas
+}
+
+export interface HealthMetric {
+  id: ID;
+  tenantId: ID;
+  cameraId: ID;
+  online: boolean;
+  fps?: number;
+  bitrate?: number;
+  recordingConfidence?: number;
+  measuredAt: string;
+  createdAt: string;
+}
+
+export interface UserSession {
+  id: ID;
+  tenantId: ID;
+  userId: ID;
+  tokenId: string;
+  expiresAt: string;
+  lastActivityAt: string;
+  createdAt: string;
 }

@@ -30,6 +30,10 @@ public class HealthMetricService {
         return repositoryPort.findByTenantIdAndCameraId(tenantId, cameraId).stream().map(mapper::toResponseDTO).toList();
     }
 
+    public HealthMetricResponseDTO getById(Long tenantId, Long id) {
+        return mapper.toResponseDTO(findMetric(tenantId, id));
+    }
+
     @Transactional
     public HealthMetricResponseDTO create(HealthMetricCreateDTO dto) {
         tenantRepositoryPort.findById(dto.getTenantId())
@@ -41,5 +45,43 @@ public class HealthMetricService {
             metric.setMeasuredAt(LocalDateTime.now());
         }
         return mapper.toResponseDTO(repositoryPort.save(metric));
+    }
+
+    @Transactional
+    public HealthMetricResponseDTO update(Long tenantId, Long id, HealthMetricCreateDTO dto) {
+        HealthMetric existing = findMetric(tenantId, id);
+        tenantRepositoryPort.findById(tenantId)
+                .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenantId + " not found."));
+        cameraRepositoryPort.findById(dto.getCameraId())
+                .orElseThrow(() -> new EntityNotFoundException("Camera with ID " + dto.getCameraId() + " not found."));
+
+        existing.setTenantId(tenantId);
+        existing.setCameraId(dto.getCameraId());
+        existing.setOnline(dto.getOnline());
+        existing.setFps(dto.getFps());
+        existing.setBitrate(dto.getBitrate());
+        existing.setRecordingConfidence(dto.getRecordingConfidence());
+        existing.setMeasuredAt(dto.getMeasuredAt() != null ? dto.getMeasuredAt() : existing.getMeasuredAt());
+
+        if (existing.getMeasuredAt() == null) {
+            existing.setMeasuredAt(LocalDateTime.now());
+        }
+
+        return mapper.toResponseDTO(repositoryPort.save(existing));
+    }
+
+    @Transactional
+    public void delete(Long tenantId, Long id) {
+        findMetric(tenantId, id);
+        repositoryPort.deleteById(id);
+    }
+
+    private HealthMetric findMetric(Long tenantId, Long id) {
+        HealthMetric metric = repositoryPort.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Health metric with ID " + id + " not found."));
+        if (!tenantId.equals(metric.getTenantId())) {
+            throw new EntityNotFoundException("Health metric with ID " + id + " not found for tenant " + tenantId + ".");
+        }
+        return metric;
     }
 }

@@ -30,6 +30,10 @@ public class UserSessionService {
         return repositoryPort.findByTenantIdAndUserId(tenantId, userId).stream().map(mapper::toResponseDTO).toList();
     }
 
+    public UserSessionResponseDTO getById(Long tenantId, Long id) {
+        return mapper.toResponseDTO(findSession(tenantId, id));
+    }
+
     @Transactional
     public UserSessionResponseDTO create(UserSessionCreateDTO dto) {
         tenantRepositoryPort.findById(dto.getTenantId())
@@ -41,6 +45,23 @@ public class UserSessionService {
             session.setLastActivityAt(LocalDateTime.now());
         }
         return mapper.toResponseDTO(repositoryPort.save(session));
+    }
+
+    @Transactional
+    public UserSessionResponseDTO update(Long tenantId, Long id, UserSessionCreateDTO dto) {
+        UserSession existing = findSession(tenantId, id);
+        tenantRepositoryPort.findById(tenantId)
+                .orElseThrow(() -> new EntityNotFoundException("Tenant with ID " + tenantId + " not found."));
+        userRepositoryPort.findById(dto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + dto.getUserId() + " not found."));
+
+        existing.setTenantId(tenantId);
+        existing.setUserId(dto.getUserId());
+        existing.setTokenId(dto.getTokenId());
+        existing.setExpiresAt(dto.getExpiresAt());
+        existing.setLastActivityAt(dto.getLastActivityAt() != null ? dto.getLastActivityAt() : existing.getLastActivityAt());
+
+        return mapper.toResponseDTO(repositoryPort.save(existing));
     }
 
     @Transactional

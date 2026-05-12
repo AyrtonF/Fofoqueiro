@@ -8,7 +8,9 @@ import com.security.fofoqueiro.infrastructure.repositories.SpringDataTenantRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -16,6 +18,14 @@ public class TenantRepositoryAdapterImpl implements ITenantRepositoryPort {
 
     private final SpringDataTenantRepository tenantRepository;
     private final TenantMapper tenantMapper;
+
+    @Override
+    public List<Tenant> findAll() {
+        return tenantRepository.findAll()
+                .stream()
+                .map(tenantMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public Optional<Tenant> findById(Long id) {

@@ -1,11 +1,17 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/auth-store';
+import { useTenantStore } from '@/store/tenant-store';
 
 const FALLBACK_API_URL = 'http://localhost:8080/api/v1';
 
 function resolveTenantId(): string | undefined {
   if (typeof window === 'undefined') {
     return undefined;
+  }
+
+  const tenantFromState = useAuthStore.getState().user?.tenantId || useTenantStore.getState().config?.tenantId;
+  if (tenantFromState) {
+    return String(tenantFromState);
   }
 
   const hostname = window.location.hostname;

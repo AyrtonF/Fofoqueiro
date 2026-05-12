@@ -22,8 +22,27 @@ public class HealthMetricController {
         return ResponseEntity.ok(service.list(tenantId, cameraId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<HealthMetricResponseDTO> getById(@RequestHeader("X-Tenant-Id") Long tenantId, @PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(tenantId, id));
+    }
+
     @PostMapping
     public ResponseEntity<HealthMetricResponseDTO> create(@Valid @RequestBody HealthMetricCreateDTO dto) {
         return ResponseEntity.ok(service.create(dto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<HealthMetricResponseDTO> update(
+            @RequestHeader("X-Tenant-Id") Long tenantId,
+            @PathVariable Long id,
+            @Valid @RequestBody HealthMetricCreateDTO dto) {
+        return ResponseEntity.ok(service.update(tenantId, id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@RequestHeader("X-Tenant-Id") Long tenantId, @PathVariable Long id) {
+        service.delete(tenantId, id);
+        return ResponseEntity.noContent().build();
     }
 }

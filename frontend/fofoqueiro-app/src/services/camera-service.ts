@@ -1,6 +1,34 @@
 import api from './api-client';
 import { Camera, CameraStatus, Recording, AuditLog, PrivacyMask } from '../domain/types';
 
+export interface CameraCreatePayload {
+  tenantId: string | number;
+  gatewayId: string | number;
+  name: string;
+  url: string;
+  latitude: number;
+  longitude: number;
+  recordingRetentionDays: number;
+}
+
+export interface CameraUpdatePayload {
+  gatewayId?: string | number;
+  name?: string;
+  url?: string;
+  latitude?: number;
+  longitude?: number;
+  recordingRetentionDays?: number;
+  status?: string;
+  fps?: number;
+  bitrate?: number;
+  isActive?: boolean;
+}
+
+export interface CameraTestConnectionPayload {
+  url: string;
+  gatewayId?: string | number;
+}
+
 // Interfaces for specific endpoints
 export interface CameraHealth {
   id: string;
@@ -19,14 +47,7 @@ export const cameraService = {
     const response = await api.get<Camera>(`/cameras/${id}`);
     return response.data;
   },
-  getStream: async (id: string, signalData: any): Promise<any> => {
-    // This endpoint is for WebRTC signaling setup.
-    // The actual stream handling (SDP negotiation, ICE candidates) would occur here.
-    // Actual stream data (like Blob or MediaStream) is typically handled client-side
-    // via WebRTC PeerConnection, not returned directly by this API call.
-    // This method likely initiates the signaling process.
-    // TODO: Implement actual WebRTC signaling logic.
-    console.warn('WebRTC signaling for camera stream is not fully implemented.');
+  getStream: async (id: string, signalData: Record<string, unknown> = {}): Promise<any> => {
     const response = await api.post(`/cameras/stream/${id}`, signalData);
     return response.data; // Assuming it returns signaling data or a confirmation
   },
@@ -34,19 +55,19 @@ export const cameraService = {
     const response = await api.get<CameraHealth[]>('/cameras/health');
     return response.data;
   },
-  create: async (data: Partial<Camera>): Promise<Camera> => {
+  create: async (data: CameraCreatePayload): Promise<Camera> => {
     const response = await api.post<Camera>('/cameras', data);
     return response.data;
   },
-  update: async (id: string, data: Partial<Camera>): Promise<Camera> => {
+  update: async (id: string, data: CameraUpdatePayload): Promise<Camera> => {
     const response = await api.put<Camera>(`/cameras/${id}`, data);
     return response.data;
   },
   delete: async (id: string): Promise<void> => {
     await api.delete(`/cameras/${id}`);
   },
-  testConnection: async (url: string): Promise<{ success: boolean; message: string }> => {
-    const response = await api.post('/cameras/test-connection', { url });
+  testConnection: async (payload: CameraTestConnectionPayload): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post('/cameras/test-connection', payload);
     return response.data;
   },
   getRecordings: async (cameraId: string, date: string): Promise<Recording[]> => {

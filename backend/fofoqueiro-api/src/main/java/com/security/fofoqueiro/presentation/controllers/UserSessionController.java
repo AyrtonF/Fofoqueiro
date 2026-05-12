@@ -22,9 +22,22 @@ public class UserSessionController {
         return ResponseEntity.ok(service.list(tenantId, userId));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserSessionResponseDTO> getById(@RequestHeader("X-Tenant-Id") Long tenantId, @PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(tenantId, id));
+    }
+
     @PostMapping
     public ResponseEntity<UserSessionResponseDTO> create(@Valid @RequestBody UserSessionCreateDTO dto) {
         return ResponseEntity.ok(service.create(dto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserSessionResponseDTO> update(
+            @RequestHeader("X-Tenant-Id") Long tenantId,
+            @PathVariable Long id,
+            @Valid @RequestBody UserSessionCreateDTO dto) {
+        return ResponseEntity.ok(service.update(tenantId, id, dto));
     }
 
     @DeleteMapping("/{id}")

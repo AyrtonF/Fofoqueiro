@@ -5,11 +5,10 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Camera } from '@/domain/types';
 import { cameraService } from '@/services/camera-service';
 import { AddCameraForm } from './AddCameraForm';
-import { cameraColumns } from './cameraColumns';
+import { createCameraColumns } from './cameraColumns';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { CameraGrid } from '../monitoring/CameraGrid';
 import { ExpandCameraDialog } from './ExpandCameraDialog';
 import { EditCameraDialog } from './EditCameraDialog';
 import { toast } from 'sonner';
@@ -53,7 +52,11 @@ export default function CameraManagementPage() {
     }
   };
 
-  const columns = cameraColumns;
+  const columns = createCameraColumns({
+    onExpand: setExpandedCamera,
+    onEdit: setEditingCamera,
+    onDelete: handleDeleteCamera,
+  });
 
   return (
     <div className="w-full p-6">
@@ -68,7 +71,7 @@ export default function CameraManagementPage() {
                 <DialogTitle>Adicionar Câmera</DialogTitle>
                 <DialogDescription>Preencha os detalhes para adicionar uma nova câmera.</DialogDescription>
               </DialogHeader>
-              <AddCameraForm />
+              <AddCameraForm onSuccess={() => setIsAddCameraDialogOpen(false)} />
             </DialogContent>
           </Dialog>
         </div>
@@ -81,12 +84,7 @@ export default function CameraManagementPage() {
         )}
 
         <ExpandCameraDialog camera={expandedCamera} onClose={() => setExpandedCamera(null)} />
-        {editingCamera && (
-          <EditCameraDialog
-            camera={editingCamera}
-            onClose={() => setEditingCamera(null)}
-          />
-        )}
+        <EditCameraDialog camera={editingCamera} onClose={() => setEditingCamera(null)} />
 
         <Dialog open={!!deletingCamera} onOpenChange={(open: boolean) => !open && setDeletingCamera(null)}>
           <DialogContent>
